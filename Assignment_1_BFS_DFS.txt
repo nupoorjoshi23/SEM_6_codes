@@ -1,0 +1,150 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+class SocialNetworkGraph{
+    int V;
+    vector<vector<int>>adj;
+
+public:
+    SocialNetworkGraph(int V){
+        this->V=V;
+        adj.resize(V);
+    }
+    void addConnection(int u, int v){ // Adding a friendship (Undirected Edge)
+        adj[u].push_back(v);
+        adj[v].push_back(u);   
+    }
+    void DFSUtil(int v, vector<bool>& visited){
+        visited[v]=true;
+        cout << "User_" << v << " ";
+        for(int friend_id : adj[v]){
+            if(!visited[friend_id]) DFSUtil(friend_id, visited);
+        }
+    }
+    void DFS(int start) {
+        vector<bool>visited(V, false);
+        cout << "Deep Dive Connections (DFS): ";
+        DFSUtil(start, visited);
+        cout << endl;
+    }
+    void BFSutil(queue<int>& q, vector<bool>& visited) {
+        if (q.empty()) return; // Base case: Queue is empty
+        int v = q.front();
+        q.pop();
+        cout << "User_" << v << " ";
+        // Add all unvisited friends to the queue
+        for(int friend_id : adj[v]){
+            if(!visited[friend_id]){
+                visited[friend_id] = true;
+                q.push(friend_id);
+            }
+        }
+        recursiveBFS(q, visited);
+    }
+    void BFS(int start) {
+        vector<bool>visited(V, false);
+        queue<int>q;
+        visited[start] = true;
+        q.push(start);
+        // 1st Degree: Your immediate friends (1 hop away). 2nd Degree: Your friends' friends (2 hops away).
+        cout << "Degrees of Separation (BFS): ";
+        recursiveBFS(q, visited);
+        cout << endl;
+    }
+    //Application
+    bool isBipartite(){ // check if network can be divided into two mutually exclusive friend group
+        vector<int>team(V, -1);
+        for(int start=0;start<V;start++){
+            if(team[start]==-1){
+                queue<int>q;
+                q.push(start);
+                team[start]=0;
+                while(!q.empty()){
+                    int v=q.front();
+                    q.pop();
+                    for(int u:adj[v]){
+                        if(team[u]==-1){ //If vertex $A$ is color 0, all its neighbors must be color 1
+                            team[u]=1-team[u] //assign opposite team
+                            q.push(u);
+                        }
+                        else if(team[u]==team[v]) return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+    bool helper_cycleDFS(int v, vector<int>& visited, int parent){
+        visited[v]=true;
+        for(int u:adj[v]){
+            if(!visited[u]){
+                if(helper_cycleDFS(u, visited, v)) return true
+            }
+            else if(u!=parent) return true; //isited node that isn't the parent -> Cycle!
+        }
+        return false;
+    }
+    bool hasCycle(){ //detect a close loop of friends
+        vector<bool>visited(V, false);
+        for(int i=0;i<V;i++){
+            if(!visited[i]){
+                if(helper_cycleDFS(i, visited,-1)) return true;
+            }
+        }
+        return false;
+    }
+};   
+
+int main() {
+    int V,E;
+    cout << "-----Social Network Analyzer-----" << endl;
+    cout << "Enter total number of users: ";
+    cin >> V;
+    SocialNetworkGraph network(V);
+    cout << "Enter number of friendships(edges): ";
+    cin >> E;
+    cout << "Enter friendships pair by pair:" << endl;
+    for(int i=0;i<E;i++){
+        int u,v;
+        cin >> u >> v;
+        network.addConnection(u,v);
+    }
+    int ch, start;
+    
+    do{
+        cout << "\n-----MENU-----\n";
+        cout << "1. Find Deep connections (DFS)\n";
+        cout << "2. Find Degrees of Seperation (BFS)\n";
+        cout << "3. Check if Network can form 2 teams (Bipartite)\n";
+        cout << "4. Detect Friend circles (Cycle Detection)\n";
+        cout << "5. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> ch;
+        
+        switch(ch){
+            case 1:
+                cout << "Enter starting User ID: ";
+                cin >> start;
+                network.DFS(start);
+                break;
+            case 2:
+                cout << "Enter starting User ID: ";
+                cin >> start;
+                network.BFS(start);
+                break;
+            case 3:
+                if(network.isBipartite()) cout << "Users can be split into two opposing teams!" << endl;
+                else cout << "Users cannot be split" << endl;
+                break;
+            case 4:
+                if(network.hasCycle()) cout << "A friend circle exists!" << endl;
+                else cout << "No friend circle exists" << endl;
+                break;
+            case 5:
+                cout << "Exiting..." << endl;
+                break;
+        }
+    } while(ch!=5);
+
+    return 0;
+}

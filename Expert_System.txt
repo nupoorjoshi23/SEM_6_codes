@@ -1,0 +1,89 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+struct Rule{ //a simple struct to hold a rule (Knowldege Base Template)
+    vector<string>conditions;
+    string conclusion;
+    string action;
+}
+//Working memory - strengths and weaknesses of employee being evaluted
+bool high_tech=false, low_tech=false;
+bool high_reliability=false, low_reliabilty=false;
+bool high_soft=false, low_soft=false;
+//helper function to ask question
+bool ask(string question){
+    char response;
+    cout << question << " (y/n): ";
+    cin >> response;
+    return (response=='y' || response=='Y'); //returns true if user says yes
+}
+int main() {
+    //knowledge base (rules)
+    vector<Rule>rules={
+        { {"high_tech", "high_reliability", "high_soft"}, "EXECUTIVE MATERIAL", "Immediate promotion to Lead role." },
+        { {"high_tech", "low_soft"}, "TECHNICAL SPECIALIST", "Focus on leadership and communication workshops." },
+        { {"low_tech", "high_soft"}, "TEAM CATALYST", "Enroll in technical upskilling/bootcamps." },
+        { {"low_reliability"}, "CRITICAL RISK", "Immediate performance review and PIP." },
+        { {"high_tech", "high_reliability"}, "CORE SENIOR DEVELOPER", "Retain with high increment and technical autonomy." }
+    };
+    cout << "================================================================\n";
+    cout << "     EXPERT SYSTEM: KNOWLDEGE AQUISITION PHASE (15 QUESTIONS)     ";
+    cout << "================================================================\n";
+    
+    string name;
+    cout << "Employee Name: ";
+    cin >> name;
+    
+    int t_score=0; //technical score
+    if(ask("1. Writes clean, optimized code?")) t_score++;
+    if(ask("2. Successfully handles comples debugging?")) t_score++;
+    if(ask("3. Mentors others on technical architecture?")) t_score++;
+    if(ask("4. Stays updated with latest AI/Cloud trends?")) t_score++;
+    
+    int r_score=0; //reliability score
+    if(ask("5. Consistently meets sprint deadlines?")) r_score++;
+    if(ask("6. Requires minimal follow-up from managers?")) r_score++;
+    if(ask("7. Follows documentation and cosing standards?")) r_score++;
+    if(ask("8. Maintains high punctuality and availability?")) r_score++;
+    
+    int s_score=0; //soft skill score
+    if(ask("9. Communicates effectively in meetings?")) s_score++;
+    if(ask("10. Handles critical feedback profesionally?")) s_score++;
+    if(ask("11. Actively helps teammates during blockers?")) s_score++;
+    if(ask("12. Demonstrates high emotional intelligence?")) s_score++;
+    
+    high_tech=(t_score>=3);
+    low_tech=(t_score<=1);
+    high_reliability=(r_score>=3);
+    low_reliability=(r_score<=1);
+    high_soft(s_score>=3);
+    low_soft=(s_score<=1);
+    
+    string final_conclusion="STANDARD PERFORMER.";
+    string final_action="Continue regular growth and quarterly reviews."
+    
+    for(const auto& rule:rules){
+        bool all_conditions_met=true;
+        for(const auto& cond:rule){
+            if(cond=="high_tech" && !high_tech) all_conditions_met=false;
+            if(cond=="low_tech" && !low_tech) all_conditions_met=false;
+            if(cond=="high_reliability" && !high_reliability) all_conditions_met=false;
+            if(cond=="low_reliability" && !low_reliability) all_conditions_met=false;
+            if(cond=="high_soft" && !high_soft) all_conditions_met=false;
+            if(cond=="low_soft" && !low_soft) all_conditions_met=false;
+        }
+        if(all_conditions_met){ //we found matching rule, so break
+            final_conclusion=rule.conclusion;
+            final_action=rule.action;
+            break;
+        }
+    }
+    cout << "\n=============================================================\n";
+    cout << "   FINAL PERFORMANCE DIAGNOSIS: " << name << endl;
+    cout << "==============================================================\n";
+    cout << "CONCLUSION : " << final_conclusion << endl;
+    cout << "ACTION : " << final_action << endl;
+    cout << "==============================================================\n";
+
+    return 0;
+}

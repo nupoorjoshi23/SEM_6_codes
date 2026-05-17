@@ -1,0 +1,58 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+struct Gig{
+  string id;
+  int deadline;
+  int profit;
+};
+bool compareGigs(Gig a, Gig b){ //sorts gig in decreasing profit order
+    return a.profit>b.profit;
+}
+void maximizeFreelanceProfit(Gig gigs[], int n){
+    sort(gigs, gigs+n, compareGigs);
+    int max_deadline=0; //to know to how big should be our calendar
+    for(int i=0;i<n;i++) max_deadline=max(max_deadline, gigs[i].deadline);
+    
+    vector<string>calendar(max_deadline+1, "Free");
+    vector<bool>slot_occupied(max_deadline+1, false);
+    int total_profit=0;
+    
+    for(int i=0;i<n;i++){ //iterate through sorted jobs
+        //starts from job's deadline and walks backwards(schedule as late as possible)
+        for(int j=min(n,gigs[i].deadline);j>0;j--){ 
+            if(slot_occupied[j]==false){
+                calendar[j]=gigs[i].id;
+                slot_occupied[j]=true;
+                total_profit+=gigs[i].profit;
+                break;
+            }
+        }
+    }
+    cout << "==========Freelancer Schedule==========" << endl;
+    for(int i=1;i<max_deadline;i++){
+        if(slot_occupied[i]) cout << "Day " << i << ": Work on " << calendar[i] << endl;
+    }
+    cout << "Total profit: $" << total_profit << endl;
+}
+
+int main() {
+    int n;
+    cout << "Enter the total number of gigs: ";
+    cin >> n;
+    Gig* gigs=new Gig[n];
+    for(int i=0;i<n;i++){
+        cout << "\n--- Gig #" << i + 1 << " ---" << endl;
+        cout << "Enter Job Name: ";
+        cin.ignore();
+        getline(cin, gigs[i].id);
+        cout << "Enter Deadline (in days): ";
+        cin >> gigs[i].deadline;
+        cout << "Enter Profit ($): ";
+        cin >> gigs[i].profit;
+    }
+    maximizeFreelanceProfit(gigs, n);
+    delete[] gigs;
+
+    return 0;
+}
