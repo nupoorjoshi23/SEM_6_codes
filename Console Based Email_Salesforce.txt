@@ -1,0 +1,42 @@
+Console Based Email
+
+Step 1: THE CRITICAL TRAP - Enable Email Deliverability
+Go to Setup (Gear Icon).
+In the Quick Find box, type Deliverability and click on it under "Email".
+Look for the Access level dropdown. Change it from "System email only" to All email.
+Click Save.
+
+Step 2: Create the Apex Class
+Open the Developer Console.
+Go to File -> New -> Apex Class.
+Name it EmailConsoleDemo.
+Paste the Apex code you provided. Important: Change 'test@gmail.com' to your actual email address so you can verify it works! Save the file (Ctrl+S).
+
+public class EmailConsoleDemo {
+    public static void runDemo(){
+        Messaging.SingleEmailMessage mail =
+            new Messaging.SingleEmailMessage();
+
+        mail.setToAddresses(
+            new String[] {'nupoorjoshi2@gmail.com'}
+        );
+
+        mail.setSubject('Test Email from Salesforce');
+
+        mail.setPlainTextBody(
+            'Hello, this is a test email from Apex Console Program.'
+        );
+
+        Messaging.sendEmail(
+            new Messaging.SingleEmailMessage[] {mail}
+        );
+        System.debug('Email sent successfully');
+    }
+}
+
+Step 3: Execute the Code
+In the Developer Console, press Ctrl+E to open the Execute Anonymous Window.
+Type: EmailConsoleDemo.runDemo();
+Click Execute.
+
+Check your real email inbox (and spam/junk folder just in case). You should see the test email!

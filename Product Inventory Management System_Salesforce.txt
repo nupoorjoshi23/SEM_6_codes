@@ -1,0 +1,108 @@
+Product Inventory Management System
+
+Step 1: Create the Custom Object
+Click the Gear Icon -> Setup -> Object Manager -> Create -> Custom Object.
+Label: Product, Plural Label: Products. Save it. (API Name becomes Product__c).
+
+Step 2: Create the Custom Fields
+Go to Fields & Relationships -> New and create the following fields:
+Text -> Label: Product Name -> Save. (API: Product_Name__c)
+Text -> Label: Serial No -> Save. (API: Serial_No__c)
+Date -> Label: Manufacture Date -> Save. (API: Manufacture_Date__c)
+Date -> Label: Expiry Date -> Save. (API: Expiry_Date__c)
+
+Step 3: Create the Apex Controller
+Open the Developer Console (Gear Icon -> Developer Console).
+Go to File -> New -> Apex Class.
+Name it ProductManagementController.
+Paste the Apex code provided and save (Ctrl+S).
+
+public class ProductManagementController {
+    public Product__c product {get;set;}
+    public List<Product__c> productList {get;set;}
+    
+    public ProductManagementController(){
+		product = new Product__c();
+        loadProducts();
+    }
+    public void loadProducts(){
+		productList = [
+            SELECT Id, Product_Name__c, Serial_No__c, Manufacture_Date__c, Expiry_Date__c
+            FROM Product__c
+            ORDER BY Serial_No__c
+        ];
+    }
+    //INSERT & UPDATE
+    public void saveProduct(){
+		upsert product;
+        product = new Product__c();
+        loadProducts();
+    }
+    //PREPARE FOR UPDATE
+    public void editProduct(){
+		String pid = ApexPages.currentPage().getParameters().get('pid');
+        if(pid != null){
+			product = [
+                SELECT Product_Name__c, Serial_No__c, Manufacture_Date__c, Expiry_Date__c
+            	FROM Product__c
+                WHERE Id = :pid
+                LIMIT 1
+            ];
+        }
+    }
+    //DELETE
+    public void deleteProduct(){
+		String pid = ApexPages.currentPage().getParameters().get('pid');
+        if(pid != null){
+			Product__c p = [
+                SELECT Id FROM Product__c 
+                WHERE Id = :pid
+                LIMIT 1
+            ];
+            delete p;
+            loadProducts();
+        }
+    }
+}
+
+Step 4: Create the Visualforce Page
+In the Developer Console, go to File -> New -> Visualforce Page.
+Name it ProductManagementPage.
+Paste the Visualforce code provided and save.
+
+<apex:page controller="ProductManagementController">
+    <apex:form id="frm">
+    	
+        <apex:pageBlock title="Input Product Details">
+        	<apex:pageBlockSection columns="1">
+            	<apex:inputField value="{!product.Product_Name__c}"/>
+                <apex:inputField value="{!product.Serial_No__c}"/>
+                <apex:inputField value="{!product.Manufacture_Date__c}"/>
+                <apex:inputField value="{!product.Expiry_Date__c}"/>
+                
+                <apex:commandButton value="Save Product" action="{!saveProduct}" rerender="frm"/>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+        
+        <apex:pageBlock title="Product List">
+            <apex:pageBlockTable value="{!productList}" var="p">
+                <apex:column value="{!p.Product_Name__c}"/>
+                <apex:column value="{!p.Serial_No__c}"/>
+                <apex:column value="{!p.Manufacture_Date__c}"/>
+                <apex:column value="{!p.Expiry_Date__c}"/>
+                
+                <apex:column headerValue="Actions">
+                    <apex:commandButton value="Edit" action="{!editProduct}" rerender="frm">
+                     	<apex:param name="pid" value="{!p.Id}"/>                                                               
+                    </apex:commandButton>
+                    <apex:commandButton value="Delete" action="{!deleteProduct}" rerender="frm">
+                     	<apex:param name="pid" value="{!p.Id}"/>                                                               
+                    </apex:commandButton>
+                </apex:column>
+            </apex:pageBlockTable>
+        </apex:pageBlock>
+        
+    </apex:form>
+</apex:page>
+
+Click the Preview button to interact with your system!

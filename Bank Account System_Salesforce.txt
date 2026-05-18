@@ -1,0 +1,83 @@
+Bank Account System
+
+Step 1: Create the Custom Object
+Click the Gear Icon -> Setup -> Object Manager -> Create -> Custom Object.
+Label: Customer, Plural Label: Customers.
+Important: When saving, Salesforce will ask you about the "Record Name" field. Leave it as the default (Data Type: Text, Field Name: Name). Save the object. (API Name becomes Customer__c).
+
+Step 2: Create the Custom Fields
+Go to Fields & Relationships -> New. Create the following fields:
+Number -> Label: Emp ID -> Save. (API: Emp_ID__c)
+Text -> Label: Emp Name -> Save. (API: Emp_Name__c)
+Email -> Label: Email -> Save. (API: Email__c)
+Date -> Label: Birth Date -> Save. (API: Birth_Date__c)
+Text (or Picklist) -> Label: Department -> Save. (API: Department__c)
+(Note: It is a bit quirky that a "Customer" object uses "Emp" fields, but follow the problem statement exactly!)
+
+Step 3: Create the Apex Class
+Click the Gear Icon -> Developer Console.
+Go to File -> New -> Apex Class.
+Name it BankConsoleDemo.
+Paste the Apex code provided and save (Ctrl+S).
+
+public class BankConsoleDemo {
+	public static void runDemo(){
+        System.debug('1.Create Employee Record');
+        
+        Customer__c Emp = new Customer__c(
+            Emp_Id__c = 101,
+            Emp_Name__c = 'Sukanya Gupta',
+            Email__c = 'sukanyagupta0730@gmail.com',
+            Birth_Date__c = Date.newInstance(2005, 7, 4),
+            Department__c = 'HR'
+        );
+        insert Emp;
+        System.debug('Employee inserted successfully!');
+        
+        System.debug('2.Read Employee Record');
+        List<Customer__c> empList = [
+            SELECT Id, Emp_Id__c, Emp_Name__c, Email__c , Birth_Date__c, Department__c 
+            FROM Customer__c
+        ];
+        for(Customer__c e : empList){
+            System.debug('Found Employee: '+ e.Emp_Name__c+ '|' + e.Department__c+ '|' + e.Email__c);
+        }
+        
+        System.debug('3.Update Employee Record');
+        if(!empList.isEmpty()){
+            Customer__c empToUpdate = empList[0];
+            empToUpdate.Department__c = 'Marketing';
+            empToUpdate.Email__c = 'sgupta@gmail.com';
+            update empToUpdate;
+       		System.debug('Employee updated successfully!');
+        }
+        System.debug('List after updation');
+        List<Customer__c> empList1 = [
+            SELECT Id, Emp_Id__c, Emp_Name__c, Email__c , Birth_Date__c, Department__c 
+            FROM Customer__c
+        ];
+        for(Customer__c e : empList1){
+            System.debug('Found Employee: '+ e.Emp_Name__c+ '|' + e.Department__c+ '|' + e.Email__c);
+        }
+        
+        System.debug('4.Delete Employee Record');
+        if(!empList.isEmpty()){
+            delete empList1[0];
+            System.debug('Employee deleted successfully!');
+        }
+        System.debug('List after deletion');
+        List<Customer__c> empList2 = [
+            SELECT Id, Emp_Id__c, Emp_Name__c, Email__c , Birth_Date__c, Department__c 
+            FROM Customer__c
+        ];
+        for(Customer__c e : empList2){
+            System.debug('Found Employee: '+ e.Emp_Name__c+ '|' + e.Department__c+ '|' + e.Email__c);
+        }
+    }
+}
+
+Step 4: Execute the Code
+In the Developer Console, press Ctrl+E to open the Execute Anonymous Window.
+Clear any old code in that window and type exactly: BankConsoleDemo.runDemo();
+Check the Open Log box and click Execute.
+In the log that opens, check Debug Only to see your formatted output.

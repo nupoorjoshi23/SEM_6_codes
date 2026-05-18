@@ -1,0 +1,73 @@
+Employee Management System
+
+Step 1: Create the Custom Object
+Click the Gear Icon -> Setup -> Object Manager -> Create -> Custom Object.
+Label: Employee, Plural Label: Employees. Save it. (API Name: Employee__c).
+
+Step 2: Create the Custom Fields
+Go to Fields & Relationships -> New. Create the following fields:
+Number -> Label: Emp ID -> Save. (API: Emp_ID__c)
+Text -> Label: Emp Name -> Save. (API: Emp_Name__c)
+Email -> Label: Email -> Save. (API: Email__c)
+Date -> Label: Birth Date -> Save. (API: Birth_Date__c)
+Text (or Picklist) -> Label: Department -> Save. (API: Department__c)
+
+Step 3: Create the Apex Class
+Click the Gear Icon -> Developer Console.
+Go to File -> New -> Apex Class.
+Name it EmployeeManagementConsole.
+Paste the Apex code and save (Ctrl+S).
+
+public class EmployeeManagementConsole {
+    public static void runDemo(){
+	System.debug('1. Create Employee Record');
+        Employee__c emp = new Employee__c(
+        	Emp_ID__c = 104,
+            Emp_Name__c = 'Vaidehi Joshi',
+            Email__c = 'vajoshi@gmail.com',
+            Birth_Date__c = Date.newInstance(2005, 1, 10),
+            Department__c = 'Marketing' 
+        );
+        insert emp;
+        System.debug('Success: Employee inserted.');
+        
+        System.debug('2. Read Employee Record');
+        List<Employee__c> empList = [
+            SELECT Id, Emp_ID__c, Emp_Name__c, Email__c, Birth_Date__c, Department__c
+            FROM Employee__c
+        ];
+        for(Employee__c e : empList){
+			System.debug('Found Employee: ' + e.Emp_Name__c + ' | ' + e.Department__c + ' | ' + e.Email__c);
+        }
+        
+        System.debug('3. Update Employee Record');
+        if(!empList.isEmpty()){
+        	Employee__c empToUpdate = empList[0];
+            empToUpdate.Department__c = 'XYZ';
+            update empToUpdate;
+            System.debug('Success: Employee Updated');
+        }
+        System.debug('After updation...');
+        List<Employee__c> empList1 = [
+            SELECT Id, Emp_ID__c, Emp_Name__c, Email__c, Birth_Date__c, Department__c
+            FROM Employee__c
+        ];
+        for(Employee__c e : empList){
+			System.debug('Found Employee: ' + e.Emp_Name__c + ' | ' + e.Department__c + ' | ' + e.Email__c);
+        }
+        
+        System.debug('4. Delete Employee Record');
+        if(!empList1.isEmpty()){
+			delete empList1[0];
+            System.debug('Success: Employee Record Deleted');
+        }
+    }
+}
+
+Step 4: Execute the Code (The "Menu/Console" part)
+In the Developer Console, go to Debug -> Open Execute Anonymous Window (Shortcut: Ctrl+E).
+Paste this exact line: EmployeeManagementConsole.runDemo();
+Make sure the Open Log checkbox (bottom left of the window) is checked.
+Click Execute.
+
+When the log opens, check the Debug Only box at the bottom to filter out the system noise and see your System.debug outputs clearly.
